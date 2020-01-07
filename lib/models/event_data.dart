@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 
-class Schedule with ChangeNotifier{
+class Schedule{
   final TimeOfDay startHour;
   final TimeOfDay endHour;
   final DateTime dateTime;
