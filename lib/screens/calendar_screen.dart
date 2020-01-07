@@ -24,8 +24,8 @@ class CalendarScreen extends StatefulWidget {
 
 class _CalendarScreenState extends State<CalendarScreen>
     with TickerProviderStateMixin {
-  Map<DateTime, List<Schedule>> _events;
-  List<Schedule> _selectedEvents;
+  Map<DateTime, List<Schedule>> _events = {};
+  List<Schedule> _selectedEvents = [];
   AnimationController _animationController;
   CalendarController _calendarController;
   var _isInit = true;
@@ -75,7 +75,9 @@ class _CalendarScreenState extends State<CalendarScreen>
   void _onDaySelected(DateTime day, List events) {
     print(['CALLBACK: _onDaySelected', day, events]);
     setState(() {
-      _selectedEvents = events;
+      if(events.isNotEmpty){
+        _selectedEvents = events;
+      }
     });
   }
 
