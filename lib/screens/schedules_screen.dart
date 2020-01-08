@@ -40,17 +40,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    /*if (_isInitBuild) {
-      print('init build');
-      _isLoading = true;
-      Provider.of<Schedules>(context).fetchSchedule().then((_) {
-        _isInitBuild = false;
-        setState(() {
-          _isLoading = false;
-        });
-      });
-    }*/
-    return Scaffold(
+   return Scaffold(
       appBar: AppBar(
         title: Text('Jadwal'),
       ),
@@ -63,7 +53,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
                 child: CircularProgressIndicator(),
               ),
             )
-          : SchedulesGrid(),
+          : Container(),
     );
   }
 }

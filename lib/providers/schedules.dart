@@ -7,24 +7,44 @@ import '../providers/schedule.dart';
 import '../helpers/methods_helper.dart';
 
 class Schedules with ChangeNotifier {
-  List<Schedule> _schedules = [];
-  List<Schedule> _items = [];
-  String _hello;
+  Map<DateTime, List<Schedule>> _mapSchedules = {};
+  final Map<String, Schedule> _dailyEvents = {
+    '3':null,
+    '4':null,
+    '5':null,
+    '6':null,
+    '7':null,
+    '8':null,
+    '9':null,
+    '10':null,
+    '11':null,
+    '12':null,
+    '13':null,
+    '14':null,
+    '15':null,
+    '16':null,
+    '17':null,
+  };
 
-  List<Schedule> get schedules {
-    return [..._schedules];
+  Map<DateTime, List<Schedule>> get mapSchedules {
+    return _mapSchedules;
   }
 
-  List<Schedule> get items {
-    return [..._items];
+  Map<String, Schedule> renderTimeline(List<Schedule> schedules){
+    for(int i=3; i<=17; i++){
+      _dailyEvents[i.toString()]=null;
+    }
+    schedules.forEach((schedule){
+      int start = int.parse(schedule.startHour.substring(0,2));
+      int end = int.parse(schedule.endHour.substring(0,2));
+      for(int i=start; i<=end; i++){
+        _dailyEvents[i.toString()] = schedule;
+      }
+    });
+    return _dailyEvents;
   }
-
-  String get stringHello {
-    return _hello;
-  }
-
   Future<void> fetchSchedule() async {
-    if (_items.isNotEmpty) {
+    if (_mapSchedules.isNotEmpty) {
       return;
     } else {
       var url = 'https://api.litamua.com/jadwalmakeup/items/schedule';
@@ -35,24 +55,36 @@ class Schedules with ChangeNotifier {
         if (extractedDatas == null) {
           return;
         }
-        final List<Schedule> loadedSchedules = [];
+        final Map<DateTime, List<Schedule>> mapLoadedSchedules = {};
         extractedDatas.forEach((scheData) {
+          final List<Schedule> loadedSchedules = [];
           loadedSchedules.add(Schedule(
-            endHour: MethodsHelper().stringToHhMm(scheData['end']),
-            startHour: MethodsHelper().stringToHhMm(scheData['start']),
+            endHour: scheData['end'].substring(0,5),
+            startHour: scheData['start'].substring(0,5),
             dateTime: DateTime.parse(scheData['date']),
+            name: scheData['name'],
+            address: scheData['address'],
           ));
+          if (mapLoadedSchedules.containsKey(DateTime.parse(scheData['date']))) {
+            mapLoadedSchedules[DateTime.parse(scheData['date'])].add(Schedule(
+              endHour: scheData['end'].substring(0,5),
+              startHour: scheData['start'].substring(0,5),
+              dateTime: DateTime.parse(scheData['date']),
+              name: scheData['name'],
+              address: scheData['address'],
+            ));
+          }else{
+            mapLoadedSchedules.putIfAbsent(
+                DateTime.parse(scheData['date']), () => loadedSchedules);
+          }
         });
-        _schedules = loadedSchedules;
-        _items = loadedSchedules;
-        _hello = _schedules[0].dateTime.toIso8601String();
-
-        print(['get date', _schedules[0].dateTime]);
-        print(_hello);
+        _mapSchedules = mapLoadedSchedules;
         notifyListeners();
       } catch (error) {
         print(error);
       }
     }
   }
+
+
 }
