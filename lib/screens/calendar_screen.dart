@@ -316,6 +316,7 @@ class _CalendarScreenState extends State<CalendarScreen>
       itemBuilder: (BuildContext context, int index) {
         String key = timeline.keys.elementAt(index);
         return Container(
+          color: (index % 2 == 0) ? Colors.white : Colors.black38,
           width: 200,
           margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
           child: ListTile(

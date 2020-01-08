@@ -31,6 +31,9 @@ class Schedules with ChangeNotifier {
   }
 
   Map<String, Schedule> renderTimeline(List<Schedule> schedules){
+    for(int i=3; i<=17; i++){
+      _dailyEvents[i.toString()]=null;
+    }
     schedules.forEach((schedule){
       int start = int.parse(schedule.startHour.substring(0,2));
       int end = int.parse(schedule.endHour.substring(0,2));
