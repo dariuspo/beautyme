@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 
 class Schedule with ChangeNotifier{
-  final TimeOfDay startHour;
-  final TimeOfDay endHour;
+  final String startHour;
+  final String endHour;
   final DateTime dateTime;
   final String name;
   final String address;

@@ -9,8 +9,6 @@ import 'package:table_calendar/table_calendar.dart';
 import '../providers/schedules.dart';
 import '../widget/navigation_bottom_bar.dart';
 
-// Example holidays
-
 class CalendarScreen extends StatefulWidget {
   static const routeName = '/calendar';
 
@@ -26,6 +24,7 @@ class _CalendarScreenState extends State<CalendarScreen>
     with TickerProviderStateMixin {
   Map<DateTime, List<Schedule>> _events = {};
   List<Schedule> _selectedEvents = [];
+
   AnimationController _animationController;
   CalendarController _calendarController;
   var _isInit = true;
@@ -64,7 +63,6 @@ class _CalendarScreenState extends State<CalendarScreen>
             final schedules = Provider.of<Schedules>(context, listen: true);
             _events = schedules.mapSchedules;
             _selectedEvents = _events[_selectedDay] ?? [];
-            print([_events, _selectedEvents]);
           });
         });
       }
@@ -75,8 +73,10 @@ class _CalendarScreenState extends State<CalendarScreen>
   void _onDaySelected(DateTime day, List events) {
     print(['CALLBACK: _onDaySelected', day, events]);
     setState(() {
-      if(events.isNotEmpty){
+      if (events.isNotEmpty) {
         _selectedEvents = events;
+      } else {
+        _selectedEvents = [];
       }
     });
   }
@@ -103,8 +103,9 @@ class _CalendarScreenState extends State<CalendarScreen>
                 //_buildTableCalendar(),
                 _buildTableCalendarWithBuilders(),
                 const SizedBox(height: 8.0),
-
-                Expanded(child: _buildEventList()),
+                Expanded(
+                  child: _buildTimeLine(),
+                ),
               ],
             ),
     );
@@ -140,7 +141,7 @@ class _CalendarScreenState extends State<CalendarScreen>
     return TableCalendar(
       calendarController: _calendarController,
       events: _events,
-      initialCalendarFormat: CalendarFormat.month,
+      initialCalendarFormat: CalendarFormat.week,
       formatAnimation: FormatAnimation.slide,
       startingDayOfWeek: StartingDayOfWeek.sunday,
       availableGestures: AvailableGestures.all,
@@ -167,7 +168,7 @@ class _CalendarScreenState extends State<CalendarScreen>
             child: Container(
               margin: const EdgeInsets.all(4.0),
               padding: const EdgeInsets.only(top: 5.0, left: 6.0),
-              color: Colors.deepOrange[300],
+              color: Colors.pink,
               width: 100,
               height: 100,
               child: Text(
@@ -308,38 +309,45 @@ class _CalendarScreenState extends State<CalendarScreen>
   }
 
   Widget _buildTimeLine() {
-    return ListView(
-      children: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.8),
-            borderRadius: BorderRadius.circular(12.0),
-          ),
+    final timeline = Provider.of<Schedules>(context, listen: false)
+        .renderTimeline(_selectedEvents);
+    return ListView.builder(
+      itemCount: timeline.length,
+      itemBuilder: (BuildContext context, int index) {
+        String key = timeline.keys.elementAt(index);
+        return Container(
+          width: 200,
           margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
           child: ListTile(
-            title: Text('03:00'),
+            title: timeline[key] != null ? Text(timeline[key].address) : Text(''),
+            trailing:
+            Text(key + ':00'),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
   Widget _buildEventList() {
-    return ListView(
-      children: _selectedEvents
-          .map((event) => Container(
-                decoration: BoxDecoration(
-                  border: Border.all(width: 0.8),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: ListTile(
-                  title: Text(event.address),
-                  onTap: () => print('$event tapped!'),
-                ),
-              ))
-          .toList(),
-    );
+    return _selectedEvents.isEmpty
+        ? Center(child: Text('Tidak ada jadwal'))
+        : ListView(
+            children: _selectedEvents
+                .map((event) => Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 0.8),
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 4.0),
+                      child: ListTile(
+                        title: Text(
+                            '${event.startHour} - ${event.endHour} di ${event.address}'),
+                        subtitle: Text(event.name),
+                        onTap: () => print('$event tapped!'),
+                      ),
+                    ))
+                .toList(),
+          );
   }
 }
